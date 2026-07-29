@@ -1,0 +1,10 @@
+{
+  "name": "skyline-education-app",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "postinstall": "npm run postinstall --prefix backend",
+    "build": "npm run build --prefix backend",
+    "start": "npm start --prefix backend"
+  }
+}
