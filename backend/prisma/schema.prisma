@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  EMPLOYEE
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum AttendanceStatus {
+  ON_TIME
+  LATE
+}
+
+model User {
+  id            String        @id @default(cuid())
+  phone         String        @unique
+  passwordHash  String?
+  name          String
+  role          Role          @default(EMPLOYEE)
+  status        UserStatus    @default(ACTIVE)
+  position      String?
+  startDate     DateTime?
+  profileImage  String?
+  googleId      String?       @unique
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  attendances   Attendance[]
+}
+
+model Attendance {
+  id           String            @id @default(cuid())
+  user         User              @relation(fields: [userId], references: [id])
+  userId       String
+  checkInTime  DateTime?
+  checkOutTime DateTime?
+  checkInLat   Float?
+  checkInLng   Float?
+  checkOutLat  Float?
+  checkOutLng  Float?
+  status       AttendanceStatus  @default(ON_TIME)
+  minutesLate  Int               @default(0)
+  createdAt    DateTime          @default(now())
+}
+
+model LocationSetting {
+  id        String   @id @default(cuid())
+  latitude  Float
+  longitude Float
+  radius    Int      @default(100)
+}
+
+model TelegramConfig {
+  id        String @id @default(cuid())
+  botToken  String
+  chatId    String
+}
+
+model NotificationSchedule {
+  id        String   @id @default(cuid())
+  type      String
+  time      String
+  message   String
+}
