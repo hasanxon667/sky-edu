@@ -266,14 +266,20 @@ export const EmployeeManagement: React.FC = () => {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <div>
-                  <label style={labelStyle}>Rol</label>
+                  <label style={labelStyle}>Rol / Turi</label>
                   <select
-                    value={formData.role}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, role: e.target.value as any }))}
+                    value={formData.position === 'Support Teacher' ? 'SUPPORT' : 'EMPLOYEE'}
+                    onChange={(e) => {
+                      if (e.target.value === 'SUPPORT') {
+                        setFormData((prev) => ({ ...prev, role: 'EMPLOYEE', position: 'Support Teacher' }));
+                      } else {
+                        setFormData((prev) => ({ ...prev, role: 'EMPLOYEE', position: prev.position === 'Support Teacher' ? 'O\'qituvchi' : prev.position }));
+                      }
+                    }}
                     style={inputStyle}
                   >
-                    <option value="EMPLOYEE">Xodim</option>
-                    <option value="ADMIN">Admin</option>
+                    <option value="EMPLOYEE">Xodim (O'qituvchi)</option>
+                    <option value="SUPPORT">Support Teacher (Yordamchi)</option>
                   </select>
                 </div>
                 <div>
