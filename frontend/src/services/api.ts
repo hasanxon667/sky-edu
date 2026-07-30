@@ -1,5 +1,5 @@
 // API service configuration for Skyline Education Backend
-export const API_BASE_URL = (import.meta.env.VITE_API_URL as string) || 'http://localhost:4000';
+export const API_BASE_URL = (import.meta.env.VITE_API_URL as string) || 'https://sky-edu-production.up.railway.app';
 
 export async function apiRequest<T = any>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = localStorage.getItem('sky_edu_token');
