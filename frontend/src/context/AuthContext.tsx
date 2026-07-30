@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { User, Role } from '../types';
 import { INITIAL_USERS } from '../services/mockData';
 import { normalizePhone, formatUzPhone } from '../utils/phoneUtils';
+import { API_BASE_URL } from '../services/api';
 
 interface AuthContextType {
   user: User | null;
@@ -23,7 +24,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [usersList, setUsersList] = useState<User[]>(() => {
     const saved = localStorage.getItem('sky_edu_users');
     let users: User[] = saved ? JSON.parse(saved) : INITIAL_USERS;
-    // Auto-purge any stale registration for 937188885
     users = users.filter((u) => !u.phone.includes('937188885') && !normalizePhone(u.phone).includes('937188885'));
     const mapped = users.map(u => u.role === 'ADMIN' ? { ...u, phone: '+998903503304', password: 'skyline-edu' } : u);
     localStorage.setItem('sky_edu_users', JSON.stringify(mapped));
@@ -39,6 +39,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     return u;
   });
+
+  // Sync users list with backend API on mount and periodically
+  useEffect(() => {
+    const fetchBackendUsers = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/auth/users`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.users && Array.isArray(data.users)) {
+            setUsersList((prev) => {
+              const prevMap = new Map(prev.map((u) => [normalizePhone(u.phone), u]));
+              data.users.forEach((bu: any) => {
+                const norm = normalizePhone(bu.phone);
+                if (!prevMap.has(norm)) {
+                  prevMap.set(norm, {
+                    id: bu.id || `usr-${Date.now()}`,
+                    name: bu.name,
+                    phone: formatUzPhone(bu.phone) || bu.phone,
+                    position: bu.position || 'Support Teacher',
+                    workStartTime: bu.workStartTime || '09:00',
+                    password: bu.password || '123456',
+                    role: bu.role || 'EMPLOYEE',
+                    status: bu.status || 'ACTIVE',
+                    startDate: bu.startDate || new Date().toISOString().split('T')[0],
+                    profileImage: bu.profileImage || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250',
+                  });
+                }
+              });
+              const merged = Array.from(prevMap.values());
+              localStorage.setItem('sky_edu_users', JSON.stringify(merged));
+              return merged;
+            });
+          }
+        }
+      } catch (err) {
+        // Fallback to localStorage gracefully if offline
+      }
+    };
+
+    fetchBackendUsers();
+  }, []);
 
   // Cross-tab synchronization so admin tab updates immediately when new employee registers
   useEffect(() => {
@@ -126,6 +167,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('sky_edu_users', JSON.stringify(next));
       return next;
     });
+
+    // Also send POST request to backend API so all devices see this user
+    fetch(`${API_BASE_URL}/api/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: newUser.name,
+        phone: newUser.phone,
+        position: newUser.position,
+        password: newUser.password,
+      }),
+    }).catch(() => {});
+
     return { success: true, message: 'Ro\'yxatdan muvaffaqiyatli o\'tdingiz! Endi tizimga kiring.' };
   };
 

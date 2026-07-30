@@ -123,4 +123,9 @@ router.put('/profile', (req: Request, res: Response): any => {
   });
 });
 
+// GET /api/auth/users - Return all registered users
+router.get('/users', (_req: Request, res: Response): any => {
+  return res.json({ users: mockUsers });
+});
+
 export default router;
