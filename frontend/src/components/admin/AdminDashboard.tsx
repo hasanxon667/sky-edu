@@ -71,14 +71,37 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ setActiveTab }) 
     }
   }
 
-  const chartData = [
-    { day: 'Dush', kelgan: 4, kechikkan: 1 },
-    { day: 'Sesh', kelgan: 4, kechikkan: 2 },
-    { day: 'Chorsh', kelgan: 4, kechikkan: 0 },
-    { day: 'Paysh', kelgan: 3, kechikkan: 1 },
-    { day: 'Juma', kelgan: 4, kechikkan: 1 },
-    { day: 'Shanba', kelgan: 2, kechikkan: 0 },
+  // Dynamically calculate current week chart data (Monday..Saturday)
+  const daysOfWeek = [
+    { key: 'Dush', dayIdx: 1 },
+    { key: 'Sesh', dayIdx: 2 },
+    { key: 'Chorsh', dayIdx: 3 },
+    { key: 'Paysh', dayIdx: 4 },
+    { key: 'Juma', dayIdx: 5 },
+    { key: 'Shanba', dayIdx: 6 },
   ];
+
+  const now = new Date();
+  const currentDayOfWeek = now.getDay(); // 0 = Sun, 1 = Mon, ...
+  const distanceToMon = currentDayOfWeek === 0 ? -6 : 1 - currentDayOfWeek;
+  const mondayDate = new Date(now);
+  mondayDate.setDate(now.getDate() + distanceToMon);
+
+  const chartData = daysOfWeek.map(({ key, dayIdx }) => {
+    const targetDateObj = new Date(mondayDate);
+    targetDateObj.setDate(mondayDate.getDate() + (dayIdx - 1));
+    const dateStr = targetDateObj.toISOString().split('T')[0];
+
+    const dayRecords = records.filter((r) => r.date === dateStr);
+    const kelgan = dayRecords.length;
+    const kechikkan = dayRecords.filter((r) => r.status === 'LATE').length;
+
+    return {
+      day: key,
+      kelgan: kelgan,
+      kechikkan: kechikkan,
+    };
+  });
 
   return (
     <div style={{
@@ -170,12 +193,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ setActiveTab }) 
               Kelgan va kechikkan xodimlar nisbati
             </p>
           </div>
-          <div style={{ height: 240, marginTop: 8 }}>
+          <div style={{ width: '100%', height: 260, minHeight: 260, marginTop: 8 }}>
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
+              <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(148,163,184,0.15)" />
-                <XAxis dataKey="day" stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} />
-                <YAxis stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} />
+                <XAxis dataKey="day" stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
                 <Tooltip
                   contentStyle={{
                     background: 'rgba(15,23,42,0.95)',
@@ -185,8 +208,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ setActiveTab }) 
                   }}
                   cursor={{ fill: 'rgba(255,255,255,0.04)' }}
                 />
-                <Bar dataKey="kelgan" name="Kelganlar" fill="#3b82f6" radius={[6, 6, 0, 0]} />
-                <Bar dataKey="kechikkan" name="Kechikkanlar" fill="#f59e0b" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="kelgan" name="Kelganlar" fill="#3b82f6" radius={[6, 6, 0, 0]} barSize={24} />
+                <Bar dataKey="kechikkan" name="Kechikkanlar" fill="#f59e0b" radius={[6, 6, 0, 0]} barSize={24} />
               </BarChart>
             </ResponsiveContainer>
           </div>
