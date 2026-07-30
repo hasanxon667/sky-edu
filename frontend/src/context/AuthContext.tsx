@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { User, Role } from '../types';
 import { INITIAL_USERS } from '../services/mockData';
+import { normalizePhone, formatUzPhone } from '../utils/phoneUtils';
 
 interface AuthContextType {
   user: User | null;
@@ -35,6 +36,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return u;
   });
 
+  // Cross-tab synchronization so admin tab updates immediately when new employee registers
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'sky_edu_users' && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          setUsersList(parsed);
+        } catch (err) {
+          console.error('Error parsing sky_edu_users from storage:', err);
+        }
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
   useEffect(() => {
     localStorage.setItem('sky_edu_users', JSON.stringify(usersList));
     if (user) {
@@ -54,14 +71,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [user]);
 
   const login = (phone: string, pass: string): boolean => {
-    const cleanPhone = phone.trim().replace(/\s+/g, '');
-    const foundUser = usersList.find((u) => u.phone.replace(/\s+/g, '') === cleanPhone);
+    const normInput = normalizePhone(phone);
+    const foundUser = usersList.find((u) => normalizePhone(u.phone) === normInput || u.phone.trim() === phone.trim());
 
     if (!foundUser) return false;
 
     // Admin requires special phone +998903503304 and password 'skyline-edu'
     if (foundUser.role === 'ADMIN') {
-      if (pass === 'skyline-edu' && cleanPhone === '+998903503304') {
+      if (pass === 'skyline-edu' && (normInput === '998903503304' || phone.trim() === '+998903503304')) {
         setUser(foundUser);
         return true;
       }
@@ -78,17 +95,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const registerUser = (data: { name: string; phone: string; position: string; password: string; workStartTime?: string }) => {
-    const cleanPhone = data.phone.trim().replace(/\s+/g, '');
-    const existing = usersList.find((u) => u.phone.replace(/\s+/g, '') === cleanPhone);
+    const normInputPhone = normalizePhone(data.phone);
+    const existing = usersList.find((u) => normalizePhone(u.phone) === normInputPhone);
 
     if (existing) {
       return { success: false, message: 'Ushbu telefon raqami allaqachon ro\'yxatdan o\'tgan!' };
     }
 
+    const formattedPhone = formatUzPhone(data.phone) || data.phone.trim();
+
     const newUser: User = {
       id: `usr-${Date.now()}`,
       name: data.name.trim(),
-      phone: data.phone.trim(),
+      phone: formattedPhone,
       position: data.position || 'Support Teacher',
       workStartTime: data.workStartTime || '09:00',
       password: data.password,
@@ -98,7 +117,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       profileImage: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250',
     };
 
-    setUsersList((prev) => [...prev, newUser]);
+    setUsersList((prev) => {
+      const next = [...prev, newUser];
+      localStorage.setItem('sky_edu_users', JSON.stringify(next));
+      return next;
+    });
     return { success: true, message: 'Ro\'yxatdan muvaffaqiyatli o\'tdingiz! Endi tizimga kiring.' };
   };
 
@@ -113,9 +136,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const addUser = (newUser: Omit<User, 'id'>) => {
     const created: User = {
       ...newUser,
+      phone: formatUzPhone(newUser.phone) || newUser.phone.trim(),
+      role: newUser.role || 'EMPLOYEE',
       id: `usr-${Date.now()}`,
     };
-    setUsersList((prev) => [...prev, created]);
+    setUsersList((prev) => {
+      const next = [...prev, created];
+      localStorage.setItem('sky_edu_users', JSON.stringify(next));
+      return next;
+    });
   };
 
   const updateUser = (updated: User) => {

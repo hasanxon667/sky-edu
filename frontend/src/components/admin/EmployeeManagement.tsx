@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import type { User } from '../../types';
 import { UserPlus, Edit3, Trash2, Search, Phone, Calendar, X, Check, Eye, EyeOff, Lock } from 'lucide-react';
-import { formatUzPhone } from '../../utils/phoneUtils';
+import { formatUzPhone, normalizePhone } from '../../utils/phoneUtils';
 
 export const EmployeeManagement: React.FC = () => {
   const { usersList, addUser, updateUser, deleteUser, toggleUserStatus } = useAuth();
@@ -26,12 +26,19 @@ export const EmployeeManagement: React.FC = () => {
     profileImage: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250',
   });
 
-  const employeesOnly = usersList.filter((u) => u.role === 'EMPLOYEE');
-  const filtered = employeesOnly.filter((u) =>
-    u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    u.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    u.phone.includes(searchTerm)
-  );
+  const employeesOnly = usersList.filter((u) => u.role === 'EMPLOYEE' || u.role?.toUpperCase() === 'EMPLOYEE' || u.role !== 'ADMIN');
+  const filtered = employeesOnly.filter((u) => {
+    const term = searchTerm.toLowerCase().trim();
+    if (!term) return true;
+    const normSearch = normalizePhone(term);
+    const normUserPhone = normalizePhone(u.phone);
+    return (
+      u.name.toLowerCase().includes(term) ||
+      u.position.toLowerCase().includes(term) ||
+      u.phone.toLowerCase().includes(term) ||
+      (normSearch.length >= 3 && normUserPhone.includes(normSearch))
+    );
+  });
 
   const openAddModal = () => {
     setEditingUser(null);

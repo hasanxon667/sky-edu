@@ -42,7 +42,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ setActiveTab }) 
 
   const todayStr = new Date().toISOString().split('T')[0];
   const todayRecords = records.filter((r) => r.date === todayStr);
-  const totalEmployees = usersList.filter((u) => u.role === 'EMPLOYEE').length;
+  const totalEmployees = usersList.filter((u) => u.role === 'EMPLOYEE' || u.role?.toUpperCase() === 'EMPLOYEE' || u.role !== 'ADMIN').length;
   const todayPresent = todayRecords.length;
   const todayLate = todayRecords.filter((r) => r.status === 'LATE').length;
   const todayAbsent = Math.max(0, totalEmployees - todayPresent);
