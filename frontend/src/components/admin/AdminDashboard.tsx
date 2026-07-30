@@ -47,6 +47,30 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ setActiveTab }) 
   const todayLate = todayRecords.filter((r) => r.status === 'LATE').length;
   const todayAbsent = Math.max(0, totalEmployees - todayPresent);
 
+  // Compute dynamic average arrival time for today's check-ins
+  let avgCheckInTime = '08:55';
+  if (todayRecords.length > 0) {
+    let totalMinutes = 0;
+    let validCount = 0;
+    todayRecords.forEach((r) => {
+      if (r.checkInTime) {
+        const parts = r.checkInTime.split(':');
+        if (parts.length >= 2) {
+          const hh = parseInt(parts[0], 10);
+          const mm = parseInt(parts[1], 10);
+          totalMinutes += hh * 60 + mm;
+          validCount++;
+        }
+      }
+    });
+    if (validCount > 0) {
+      const avgMins = Math.round(totalMinutes / validCount);
+      const avgH = Math.floor(avgMins / 60).toString().padStart(2, '0');
+      const avgM = (avgMins % 60).toString().padStart(2, '0');
+      avgCheckInTime = `${avgH}:${avgM}`;
+    }
+  }
+
   const chartData = [
     { day: 'Dush', kelgan: 4, kechikkan: 1 },
     { day: 'Sesh', kelgan: 4, kechikkan: 2 },
@@ -117,7 +141,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ setActiveTab }) 
         <KpiCard
           label="Kechikkanlar"
           value={todayLate}
-          sub="09:00 dan keyin"
+          sub="Grafikdan kechikkanlar"
           icon={Clock}
           iconColor="#f59e0b"
           iconBg="rgba(245,158,11,0.13)"
@@ -125,8 +149,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ setActiveTab }) 
         />
         <KpiCard
           label="O'rtacha kelish"
-          value="08:56"
-          sub="Norma: 09:00"
+          value={avgCheckInTime}
+          sub="Shaxsiy grafik bo'yicha"
           icon={Calendar}
           iconColor="#3b82f6"
           iconBg="rgba(59,130,246,0.13)"
