@@ -37,6 +37,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     localStorage.setItem('sky_edu_users', JSON.stringify(usersList));
+    if (user) {
+      const latest = usersList.find((u) => u.id === user.id);
+      if (latest && JSON.stringify(latest) !== JSON.stringify(user)) {
+        setUser(latest);
+      }
+    }
   }, [usersList]);
 
   useEffect(() => {

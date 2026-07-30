@@ -18,10 +18,10 @@ export const EmployeeManagement: React.FC = () => {
   };
 
   const [formData, setFormData] = useState<{
-    name: string; phone: string; position: string; startDate: string; password: string;
+    name: string; phone: string; position: string; workStartTime: string; startDate: string; password: string;
     role: 'EMPLOYEE' | 'ADMIN'; status: 'ACTIVE' | 'INACTIVE'; profileImage: string;
   }>({
-    name: '', phone: '+9989', position: 'Support Teacher', startDate: new Date().toISOString().split('T')[0], password: '',
+    name: '', phone: '+9989', position: 'Support Teacher', workStartTime: '09:00', startDate: new Date().toISOString().split('T')[0], password: '',
     role: 'EMPLOYEE', status: 'ACTIVE',
     profileImage: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250',
   });
@@ -36,7 +36,7 @@ export const EmployeeManagement: React.FC = () => {
   const openAddModal = () => {
     setEditingUser(null);
     setFormData({
-      name: '', phone: '+9989', position: 'Support Teacher',
+      name: '', phone: '+9989', position: 'Support Teacher', workStartTime: '09:00',
       startDate: new Date().toISOString().split('T')[0], password: '',
       role: 'EMPLOYEE', status: 'ACTIVE',
       profileImage: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=250'
@@ -47,7 +47,7 @@ export const EmployeeManagement: React.FC = () => {
   const openEditModal = (u: User) => {
     setEditingUser(u);
     setFormData({
-      name: u.name, phone: u.phone, position: u.position,
+      name: u.name, phone: u.phone, position: u.position, workStartTime: u.workStartTime || '09:00',
       startDate: u.startDate, password: u.password || '',
       role: u.role, status: u.status, profileImage: u.profileImage || ''
     });
