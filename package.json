@@ -2,6 +2,9 @@
   "name": "skyline-education-app",
   "version": "1.0.0",
   "private": true,
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "scripts": {
     "postinstall": "cd backend && npm install && npx prisma generate",
     "build": "cd backend && npm run build",
