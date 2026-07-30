@@ -35,7 +35,7 @@ export const GpsRadar: React.FC<GpsRadarProps> = ({ onCoordsChange }) => {
         (pos) => {
           updatePosition(pos.coords.latitude, pos.coords.longitude);
         },
-        (err) => {
+        () => {
           setIsLoading(false);
           setGpsError('GPS ruxsati berilmadi yoki aniqlanmadi.');
         },
