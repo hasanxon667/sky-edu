@@ -2,17 +2,37 @@ import React from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useAttendance } from '../../context/AttendanceContext';
-import { Sun, Moon, ShieldCheck, UserCheck, LogOut, WifiOff } from 'lucide-react';
+import {
+  Sun, Moon, ShieldCheck, UserCheck, LogOut, WifiOff,
+  LayoutDashboard, BookOpen, Users, Settings, MapPin, Clock, User as UserIcon
+} from 'lucide-react';
 
 interface HeaderProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ setActiveTab }) => {
+export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab }) => {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { isOffline, pendingOfflineCount } = useAttendance();
+
+  const isAdmin = user?.role === 'ADMIN';
+
+  const employeeTabs = [
+    { id: 'checkin', label: 'Davomat', icon: MapPin },
+    { id: 'history', label: 'Tarix', icon: Clock },
+    { id: 'profile', label: 'Profil', icon: UserIcon },
+  ];
+
+  const adminTabs = [
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'journal', label: 'Jurnal', icon: BookOpen },
+    { id: 'employees', label: 'Xodimlar', icon: Users },
+    { id: 'settings', label: 'Sozlamalar', icon: Settings },
+  ];
+
+  const navTabs = isAdmin ? adminTabs : employeeTabs;
 
   return (
     <header
@@ -54,6 +74,39 @@ export const Header: React.FC<HeaderProps> = ({ setActiveTab }) => {
           </span>
         </div>
       </button>
+
+      {/* Desktop Navigation Tabs */}
+      {user && (
+        <nav className="hidden md:flex items-center gap-1">
+          {navTabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '7px 14px',
+                  borderRadius: 10,
+                  fontSize: 13,
+                  fontWeight: isActive ? 800 : 600,
+                  cursor: 'pointer',
+                  border: 'none',
+                  background: isActive ? 'rgba(59,130,246,0.15)' : 'transparent',
+                  color: isActive ? '#3b82f6' : 'var(--text-muted)',
+                  transition: 'all 0.15s',
+                }}
+              >
+                <Icon size={16} />
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+      )}
 
       {/* Right controls */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>

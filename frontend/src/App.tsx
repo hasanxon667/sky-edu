@@ -15,29 +15,6 @@ import { AttendanceJournal } from './components/admin/AttendanceJournal';
 import { EmployeeManagement } from './components/admin/EmployeeManagement';
 import { AdminSettingsContainer } from './components/admin/AdminSettingsContainer';
 
-const MaintenanceBanner: React.FC = () => (
-  <div style={{
-    background: 'linear-gradient(135deg, #ef4444, #dc2626)',
-    color: '#ffffff',
-    textAlign: 'center',
-    padding: '14px 16px',
-    fontWeight: 900,
-    fontSize: 16,
-    letterSpacing: '0.02em',
-    boxShadow: '0 4px 16px rgba(239, 68, 68, 0.4)',
-    zIndex: 999999,
-    position: 'sticky',
-    top: 0,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-  }}>
-    <span style={{ fontSize: 20 }}>🚧</span>
-    <span>Texnik Ishlar olib borilmoqda (Sinov rejimi)</span>
-  </div>
-);
-
 const MainApp: React.FC = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<string>(() => {
@@ -45,19 +22,13 @@ const MainApp: React.FC = () => {
   });
 
   if (!user) {
-    return (
-      <>
-        <MaintenanceBanner />
-        <LoginPage />
-      </>
-    );
+    return <LoginPage />;
   }
 
   const isAdmin = user.role === 'ADMIN';
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans transition-colors duration-300">
-      <MaintenanceBanner />
       {/* Top Header Navbar */}
       <Header activeTab={activeTab} setActiveTab={setActiveTab} />
 
