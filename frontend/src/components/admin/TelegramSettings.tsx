@@ -17,12 +17,13 @@ export const TelegramSettings: React.FC = () => {
   const handleTest = async () => {
     setIsSending(true);
     setTestResult(null);
-    const ok = await sendTelegramTest('✅ Test bildirishnomasi: Skyline Education davomat tizimi faol ishlamoqda!');
+    const res = await (sendTelegramTest as any)('✅ Test bildirishnomasi: Skyline Education davomat tizimi faol ishlamoqda!', formData);
     setIsSending(false);
-    setTestResult(ok
-      ? { success: true, msg: '✅ Test xabari Telegram guruhiga muvaffaqiyatli yuborildi!' }
-      : { success: false, msg: "⚠️ Telegram API xatoligi: Bot token yoki Chat ID ni tekshiring." }
-    );
+    if (typeof res === 'object' && res !== null) {
+      setTestResult({ success: res.success, msg: res.message });
+    } else {
+      setTestResult({ success: !!res, msg: res ? '✅ Test xabari Telegram guruhiga muvaffaqiyatli yuborildi!' : '⚠️ Telegram API xatoligi: Bot token yoki Chat ID ni tekshiring.' });
+    }
   };
 
   const inputStyle: React.CSSProperties = {

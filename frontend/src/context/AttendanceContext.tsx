@@ -31,7 +31,7 @@ interface AttendanceContextType {
     userId: string,
     customCoords?: { lat: number; lng: number }
   ) => Promise<{ success: boolean; message: string }>;
-  sendTelegramTest: (message: string) => Promise<boolean>;
+  sendTelegramTest: (message: string, overrideConfig?: TelegramConfig) => Promise<{ success: boolean; message: string } | boolean>;
   todayRecord: (userId: string) => AttendanceRecord | undefined;
 }
 
@@ -115,23 +115,31 @@ export const AttendanceProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }
   };
 
-  const sendTelegramTest = async (customMsg: string) => {
-    if (!telegramConfig.botToken || !telegramConfig.chatId) return false;
+  const sendTelegramTest = async (customMsg: string, overrideConfig?: TelegramConfig) => {
+    const cfg = overrideConfig || telegramConfig;
+    if (!cfg.botToken || !cfg.chatId) {
+      return { success: false, message: "⚠️ Bot Token va Chat ID kiritilishi shart!" };
+    }
     try {
-      const url = `https://api.telegram.org/bot${telegramConfig.botToken}/sendMessage`;
+      const url = `https://api.telegram.org/bot${cfg.botToken.trim()}/sendMessage`;
       const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          chat_id: telegramConfig.chatId,
+          chat_id: cfg.chatId.trim(),
           text: `📱 <b>Skyline Education Telegram Bot Test</b>\n\n${customMsg}\n\n⏰ Vaqt: ${new Date().toLocaleTimeString('uz-UZ')}`,
           parse_mode: 'HTML'
         })
       });
-      return res.ok;
-    } catch (e) {
-      console.error(e);
-      return false;
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.ok) {
+        return { success: true, message: "✅ Test xabari Telegram guruhiga muvaffaqiyatli yuborildi!" };
+      } else {
+        const desc = data.description || "Bot token yoki Chat ID noto'g'ri";
+        return { success: false, message: `⚠️ Telegram API Xatosi: ${desc}` };
+      }
+    } catch (e: any) {
+      return { success: false, message: `⚠️ Ulanish xatosi: ${e.message || 'Tarmoq xatosi'}` };
     }
   };
 
