@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Phone, Lock, LogIn, UserPlus, User, Briefcase, CheckCircle2 } from 'lucide-react';
+import { formatUzPhone } from '../../utils/phoneUtils';
 
 export const LoginPage: React.FC = () => {
   const { login, registerUser } = useAuth();
@@ -12,7 +13,7 @@ export const LoginPage: React.FC = () => {
 
   // Register form state
   const [regName, setRegName] = useState('');
-  const [regPhone, setRegPhone] = useState('+998');
+  const [regPhone, setRegPhone] = useState('');
   const [regPosition, setRegPosition] = useState('Support Teacher');
   const [regPassword, setRegPassword] = useState('');
 
@@ -212,8 +213,8 @@ export const LoginPage: React.FC = () => {
                   type="text"
                   required
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+998 90 123 45 67"
+                  onChange={(e) => setPhone(formatUzPhone(e.target.value))}
+                  placeholder="+998 90 350 33 04"
                   className="sky-input"
                   style={{ background: 'rgba(255,255,255,0.06)', color: '#ffffff', borderColor: 'rgba(255,255,255,0.15)' }}
                 />
@@ -287,8 +288,8 @@ export const LoginPage: React.FC = () => {
                   type="text"
                   required
                   value={regPhone}
-                  onChange={(e) => setRegPhone(e.target.value)}
-                  placeholder="+998 90 123 45 67"
+                  onChange={(e) => setRegPhone(formatUzPhone(e.target.value))}
+                  placeholder="+998 90 350 33 04"
                   className="sky-input"
                   style={{ background: 'rgba(255,255,255,0.06)', color: '#ffffff', borderColor: 'rgba(255,255,255,0.15)' }}
                 />

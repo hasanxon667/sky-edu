@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import type { User } from '../../types';
 import { UserPlus, Edit3, Trash2, Search, Phone, Calendar, X, Check, Eye, EyeOff, Lock } from 'lucide-react';
+import { formatUzPhone } from '../../utils/phoneUtils';
 
 export const EmployeeManagement: React.FC = () => {
   const { usersList, addUser, updateUser, deleteUser, toggleUserStatus } = useAuth();
@@ -253,7 +254,10 @@ export const EmployeeManagement: React.FC = () => {
                     required={key !== 'profileImage' && key !== 'startDate'}
                     placeholder={placeholder}
                     value={(formData as any)[key]}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, [key]: e.target.value }))}
+                    onChange={(e) => {
+                      const val = key === 'phone' ? formatUzPhone(e.target.value) : e.target.value;
+                      setFormData((prev) => ({ ...prev, [key]: val }));
+                    }}
                     style={inputStyle}
                   />
                 </div>
