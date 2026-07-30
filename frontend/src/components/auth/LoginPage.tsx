@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { Phone, Lock, LogIn, UserPlus, User, Briefcase, CheckCircle2 } from 'lucide-react';
+import { Phone, Lock, LogIn, UserPlus, User, Briefcase, CheckCircle2, Clock } from 'lucide-react';
 import { formatUzPhone } from '../../utils/phoneUtils';
 
 export const LoginPage: React.FC = () => {
@@ -15,6 +15,7 @@ export const LoginPage: React.FC = () => {
   const [regName, setRegName] = useState('');
   const [regPhone, setRegPhone] = useState('');
   const [regPosition, setRegPosition] = useState('Support Teacher');
+  const [regWorkStartTime, setRegWorkStartTime] = useState('09:00');
   const [regPassword, setRegPassword] = useState('');
 
   const [error, setError] = useState('');
@@ -52,6 +53,7 @@ export const LoginPage: React.FC = () => {
       name: regName,
       phone: regPhone,
       position: regPosition,
+      workStartTime: regWorkStartTime,
       password: regPassword,
     });
 
@@ -64,8 +66,9 @@ export const LoginPage: React.FC = () => {
       setMode('login');
       // Reset register form
       setRegName('');
-      setRegPhone('+998');
+      setRegPhone('');
       setRegPosition('Support Teacher');
+      setRegWorkStartTime('09:00');
       setRegPassword('');
     }
   };
@@ -311,6 +314,24 @@ export const LoginPage: React.FC = () => {
                   placeholder="Masalan: Support Teacher, IELTS Instruktur..."
                   className="sky-input"
                   style={{ background: 'rgba(255,255,255,0.06)', color: '#ffffff', borderColor: 'rgba(255,255,255,0.15)' }}
+                />
+              </div>
+            </div>
+
+            {/* Work Start Time */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label style={{ fontSize: 13, fontWeight: 600, color: '#cbd5e1' }}>Ish boshlanish vaqti *</label>
+              <div style={{ position: 'relative' }}>
+                <span className="sky-input-icon">
+                  <Clock size={18} />
+                </span>
+                <input
+                  type="time"
+                  required
+                  value={regWorkStartTime}
+                  onChange={(e) => setRegWorkStartTime(e.target.value)}
+                  className="sky-input"
+                  style={{ background: '#0f172a', color: '#ffffff', borderColor: 'rgba(255,255,255,0.15)' }}
                 />
               </div>
             </div>

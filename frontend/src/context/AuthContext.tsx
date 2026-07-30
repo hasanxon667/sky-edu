@@ -9,7 +9,7 @@ interface AuthContextType {
   loginAs: (user: User) => void;
   logout: () => void;
   usersList: User[];
-  registerUser: (data: { name: string; phone: string; position: string; password: string }) => { success: boolean; message: string };
+  registerUser: (data: { name: string; phone: string; position: string; password: string; workStartTime?: string }) => { success: boolean; message: string };
   addUser: (user: Omit<User, 'id'>) => void;
   updateUser: (user: User) => void;
   deleteUser: (id: string) => void;
@@ -71,7 +71,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return true;
   };
 
-  const registerUser = (data: { name: string; phone: string; position: string; password: string }) => {
+  const registerUser = (data: { name: string; phone: string; position: string; password: string; workStartTime?: string }) => {
     const cleanPhone = data.phone.trim().replace(/\s+/g, '');
     const existing = usersList.find((u) => u.phone.replace(/\s+/g, '') === cleanPhone);
 
@@ -84,6 +84,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       name: data.name.trim(),
       phone: data.phone.trim(),
       position: data.position || 'Support Teacher',
+      workStartTime: data.workStartTime || '09:00',
       password: data.password,
       role: 'EMPLOYEE',
       status: 'ACTIVE',

@@ -24,7 +24,8 @@ interface AttendanceContextType {
     userName: string,
     userPosition: string,
     userAvatar?: string,
-    customCoords?: { lat: number; lng: number }
+    customCoords?: { lat: number; lng: number },
+    workStartTime?: string
   ) => Promise<{ success: boolean; message: string; record?: AttendanceRecord }>;
   checkOut: (
     userId: string,
@@ -139,7 +140,8 @@ export const AttendanceProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     userName: string,
     userPosition: string,
     userAvatar?: string,
-    customCoords?: { lat: number; lng: number }
+    customCoords?: { lat: number; lng: number },
+    workStartTime?: string
   ): Promise<{ success: boolean; message: string; record?: AttendanceRecord }> => {
     return new Promise((resolve) => {
       const todayStr = new Date().toISOString().split('T')[0];
@@ -172,7 +174,7 @@ export const AttendanceProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
         const now = new Date();
         const timeStr = now.toTimeString().split(' ')[0];
-        const { status, minutesLate } = calculateLateness(now);
+        const { status, minutesLate } = calculateLateness(now, workStartTime || '09:00');
 
         const newRecord: AttendanceRecord = {
           id: `att-${Date.now()}`,

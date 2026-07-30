@@ -47,10 +47,14 @@ export function detectLocationSpoofing(position: GeolocationPosition): SpoofChec
   return { isSuspicious: false };
 }
 
-// Calculate lateness in minutes based on work start time (09:00)
-export function calculateLateness(checkInDate: Date = new Date()): { status: 'ON_TIME' | 'LATE'; minutesLate: number } {
-  const workStartHour = 9;
-  const workStartMinute = 0;
+// Calculate lateness in minutes based on custom employee work start time (default "09:00")
+export function calculateLateness(
+  checkInDate: Date = new Date(),
+  targetStartTime: string = '09:00'
+): { status: 'ON_TIME' | 'LATE'; minutesLate: number } {
+  const [startH, startM] = (targetStartTime || '09:00').split(':').map((num) => parseInt(num, 10) || 0);
+  const workStartHour = isNaN(startH) ? 9 : startH;
+  const workStartMinute = isNaN(startM) ? 0 : startM;
   const graceMinutes = 5; // 5 minute grace period (e.g., 09:03 is ON_TIME)
 
   const currentHour = checkInDate.getHours();

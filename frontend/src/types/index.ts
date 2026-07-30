@@ -10,6 +10,7 @@ export interface User {
   status: UserStatus;
   position: string;
   startDate: string;
+  workStartTime?: string; // e.g. "09:00"
   profileImage?: string;
   password?: string;
   createdAt?: string;

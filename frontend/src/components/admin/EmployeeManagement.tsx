@@ -244,6 +244,7 @@ export const EmployeeManagement: React.FC = () => {
                 { label: 'To\'liq ism *', key: 'name', type: 'text', placeholder: 'Abdullayev Sarvar' },
                 { label: 'Telefon *', key: 'phone', type: 'text', placeholder: '+998901234567' },
                 { label: 'Lavozim *', key: 'position', type: 'text', placeholder: 'Support Teacher' },
+                { label: 'Ish boshlanish vaqti *', key: 'workStartTime', type: 'time', placeholder: '09:00' },
                 { label: 'Parol *', key: 'password', type: 'text', placeholder: 'Xodim paroli' },
                 { label: 'Ishga kirgan sana', key: 'startDate', type: 'date', placeholder: '' },
               ].map(({ label, key, type, placeholder }) => (

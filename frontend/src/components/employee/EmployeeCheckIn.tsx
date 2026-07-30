@@ -20,7 +20,7 @@ export const EmployeeCheckIn: React.FC = () => {
   const handleCheckIn = async () => {
     setIsLoading(true);
     setFeedback(null);
-    const res = await checkIn(user.id, user.name, user.position, user.profileImage, customCoords);
+    const res = await checkIn(user.id, user.name, user.position, user.profileImage, customCoords, user.workStartTime || '09:00');
     setIsLoading(false);
     setFeedback({ type: res.success ? 'success' : 'error', text: res.message });
   };
@@ -52,9 +52,14 @@ export const EmployeeCheckIn: React.FC = () => {
             <span className="sky-badge sky-badge-green">{user.status}</span>
           </div>
           <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: '2px 0 0' }}>{user.position}</p>
-          <p style={{ fontSize: 11, color: '#3b82f6', fontWeight: 600, margin: '4px 0 0' }}>
-            📅 {new Date().toLocaleDateString('uz-UZ', { weekday: 'short', month: 'short', day: 'numeric' })}
-          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 4, fontSize: 11, fontWeight: 600 }}>
+            <span style={{ color: '#3b82f6' }}>
+              📅 {new Date().toLocaleDateString('uz-UZ', { weekday: 'short', month: 'short', day: 'numeric' })}
+            </span>
+            <span style={{ color: '#10b981', background: 'rgba(16,185,129,0.12)', padding: '2px 6px', borderRadius: 6 }}>
+              ⏰ Ish: {user.workStartTime || '09:00'} dan
+            </span>
+          </div>
         </div>
       </div>
 
