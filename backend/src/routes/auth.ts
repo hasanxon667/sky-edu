@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import prisma from '../prisma';
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'skyline-edu-secret-key-2026';
@@ -35,28 +36,59 @@ router.post('/register', async (req: Request, res: Response): Promise<any> => {
   }
 
   const cleanPhone = phone.trim().replace(/\s+/g, '');
-  const existing = mockUsers.find((u) => u.phone.replace(/\s+/g, '') === cleanPhone);
 
-  if (existing) {
-    return res.status(400).json({ error: 'Ushbu telefon raqami allaqachon ro\'yxatdan o\'tgan!' });
+  try {
+    // Try Database first
+    const existingDb = await prisma.user.findUnique({ where: { phone: cleanPhone } });
+    if (existingDb) {
+      return res.status(400).json({ error: 'Ushbu telefon raqami allaqachon ro\'yxatdan o\'tgan!' });
+    }
+
+    const newUserDb = await prisma.user.create({
+      data: {
+        name: name.trim(),
+        phone: cleanPhone,
+        position: position || 'Support Teacher',
+        passwordHash: password,
+        role: 'EMPLOYEE',
+        status: 'ACTIVE',
+      }
+    });
+
+    const formattedUser = {
+      ...newUserDb,
+      password: password,
+    };
+    mockUsers.push(formattedUser as any);
+
+    return res.status(201).json({
+      message: 'Ro\'yxatdan muvaffaqiyatli o\'tdingiz! Endi tizimga kiring.',
+      user: formattedUser
+    });
+  } catch (err) {
+    // Fallback to in-memory mock Users if DB is not connected
+    const existing = mockUsers.find((u) => u.phone.replace(/\s+/g, '') === cleanPhone);
+    if (existing) {
+      return res.status(400).json({ error: 'Ushbu telefon raqami allaqachon ro\'yxatdan o\'tgan!' });
+    }
+
+    const newUser = {
+      id: `usr-${Date.now()}`,
+      name: name.trim(),
+      phone: phone.trim(),
+      position: position || 'Support Teacher',
+      password: password,
+      role: 'EMPLOYEE',
+      profileImage: null
+    };
+
+    mockUsers.push(newUser);
+
+    return res.status(201).json({
+      message: 'Ro\'yxatdan muvaffaqiyatli o\'tdingiz! Endi tizimga kiring.',
+      user: newUser
+    });
   }
-
-  const newUser = {
-    id: `usr-${Date.now()}`,
-    name: name.trim(),
-    phone: phone.trim(),
-    position: position || 'Support Teacher',
-    password: password,
-    role: 'EMPLOYEE',
-    profileImage: null
-  };
-
-  mockUsers.push(newUser);
-
-  return res.status(201).json({
-    message: 'Ro\'yxatdan muvaffaqiyatli o\'tdingiz! Endi tizimga kiring.',
-    user: newUser
-  });
 });
 
 // POST /api/auth/login
@@ -124,8 +156,29 @@ router.put('/profile', (req: Request, res: Response): any => {
 });
 
 // GET /api/auth/users - Return all registered users
-router.get('/users', (_req: Request, res: Response): any => {
-  return res.json({ users: mockUsers });
+router.get('/users', async (_req: Request, res: Response): Promise<any> => {
+  try {
+    const dbUsers = await prisma.user.findMany({
+      orderBy: { createdAt: 'desc' }
+    });
+    if (dbUsers && dbUsers.length > 0) {
+      const formatted = dbUsers.map((u) => ({
+        id: u.id,
+        name: u.name,
+        phone: u.phone,
+        position: u.position || 'Support Teacher',
+        role: u.role,
+        status: u.status,
+        profileImage: u.profileImage,
+        password: u.passwordHash || '',
+        startDate: u.startDate ? u.startDate.toISOString().split('T')[0] : u.createdAt.toISOString().split('T')[0],
+      }));
+      return res.json({ users: formatted });
+    }
+    return res.json({ users: mockUsers });
+  } catch (err) {
+    return res.json({ users: mockUsers });
+  }
 });
 
 export default router;
