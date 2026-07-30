@@ -119,9 +119,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const updateUser = (updated: User) => {
-    setUsersList((prev) => prev.map((u) => (u.id === updated.id ? updated : u)));
-    if (user?.id === updated.id) {
+    setUsersList((prev) => {
+      const next = prev.map((u) => (u.id === updated.id ? updated : u));
+      localStorage.setItem('sky_edu_users', JSON.stringify(next));
+      return next;
+    });
+    if (user && user.id === updated.id) {
       setUser(updated);
+      localStorage.setItem('sky_edu_auth_user', JSON.stringify(updated));
     }
   };
 

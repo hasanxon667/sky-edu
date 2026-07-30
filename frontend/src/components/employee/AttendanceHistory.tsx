@@ -45,11 +45,20 @@ export const AttendanceHistory: React.FC = () => {
   return (
     <div style={{ maxWidth: 460, margin: '0 auto', padding: '16px 16px 100px', display: 'flex', flexDirection: 'column', gap: 14 }}>
       {/* Header */}
-      <div>
-        <h2 style={{ fontSize: 20, fontWeight: 900, color: 'var(--text)', margin: 0, letterSpacing: '-0.02em' }}>
-          Davomat Tarixi
-        </h2>
-        <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>Shaxsiy keldi-ketdi yozuvlaringiz</p>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div>
+          <h2 style={{ fontSize: 20, fontWeight: 900, color: 'var(--text)', margin: 0, letterSpacing: '-0.02em' }}>
+            Davomat Tarixi
+          </h2>
+          <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>Shaxsiy keldi-ketdi yozuvlaringiz</p>
+        </div>
+        <div style={{
+          padding: '6px 12px', borderRadius: 10,
+          background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)',
+          color: '#10b981', fontSize: 12, fontWeight: 700,
+        }}>
+          ⏰ Ish: {user.workStartTime || '09:00'} dan
+        </div>
       </div>
 
       {/* Stats row */}
