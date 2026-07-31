@@ -3,8 +3,8 @@ import { Router, Request, Response } from 'express';
 const router = Router();
 
 const SKYLINE_CENTER = {
-  latitude: 41.311081,
-  longitude: 69.240562,
+  latitude: 41.2615,
+  longitude: 69.2177,
   radiusMeters: 100
 };
 

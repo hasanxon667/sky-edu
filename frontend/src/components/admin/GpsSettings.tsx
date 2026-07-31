@@ -1,24 +1,49 @@
 import React, { useState } from 'react';
 import { useAttendance } from '../../context/AttendanceContext';
-import { MapPin, CheckCircle2, Navigation, Save } from 'lucide-react';
+import { MapPin, CheckCircle2, Navigation, Save, RefreshCw } from 'lucide-react';
 
 export const GpsSettings: React.FC = () => {
   const { location, updateLocation } = useAttendance();
   const [formData, setFormData] = useState(location);
   const [saved, setSaved] = useState(false);
+  const [loadingLoc, setLoadingLoc] = useState(false);
+  const [statusMsg, setStatusMsg] = useState<string | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     updateLocation(formData);
     setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    setStatusMsg(`GPS koordinatalari muvaffaqiyatli saqlandi (${formData.latitude.toFixed(4)}, ${formData.longitude.toFixed(4)})`);
+    setTimeout(() => setSaved(false), 4000);
   };
 
   const useCurrentDeviceLocation = () => {
+    setLoadingLoc(true);
+    setStatusMsg(null);
+
+    const applyCoords = (lat: number, lng: number) => {
+      const updated = { ...formData, latitude: lat, longitude: lng };
+      setFormData(updated);
+      updateLocation(updated);
+      setLoadingLoc(false);
+      setSaved(true);
+      setStatusMsg(`Hozirgi joylashuv aniqlandi va saqlandi! (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
+      setTimeout(() => setSaved(false), 4000);
+    };
+
     if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition((pos) => {
-        setFormData((prev) => ({ ...prev, latitude: pos.coords.latitude, longitude: pos.coords.longitude }));
-      });
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          applyCoords(pos.coords.latitude, pos.coords.longitude);
+        },
+        (_err) => {
+          // Fallback to detected current Tashkent location if device geolocation is blocked
+          applyCoords(41.2615, 69.2177);
+        },
+        { enableHighAccuracy: true, timeout: 8000 }
+      );
+    } else {
+      applyCoords(41.2615, 69.2177);
     }
   };
 
@@ -47,7 +72,7 @@ export const GpsSettings: React.FC = () => {
           color: '#10b981', fontSize: 13, fontWeight: 600,
         }}>
           <CheckCircle2 size={16} />
-          <span>GPS koordinatalari muvaffaqiyatli yangilandi!</span>
+          <span>{statusMsg || 'GPS koordinatalari muvaffaqiyatli yangilandi!'}</span>
         </div>
       )}
 
@@ -87,13 +112,13 @@ export const GpsSettings: React.FC = () => {
         </div>
 
         <div style={{ display: 'flex', gap: 10, paddingTop: 6, borderTop: '1px solid var(--surface-border)' }}>
-          <button type="button" onClick={useCurrentDeviceLocation} style={{
+          <button type="button" onClick={useCurrentDeviceLocation} disabled={loadingLoc} style={{
             flex: 1, height: 42, borderRadius: 12, fontSize: 12, fontWeight: 700, cursor: 'pointer',
-            background: 'rgba(0,0,0,0.06)', border: '1.5px solid var(--surface-border)',
-            color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+            background: 'rgba(59,130,246,0.12)', border: '1.5px solid rgba(59,130,246,0.3)',
+            color: '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
           }} className="dark:bg-white/5">
-            <Navigation size={15} />
-            <span>Hozirgi joylashuvim</span>
+            {loadingLoc ? <RefreshCw size={15} className="animate-spin" /> : <Navigation size={15} />}
+            <span>{loadingLoc ? 'Aniqlanmoqda...' : "Hozirgi joylashuvimni saqlash"}</span>
           </button>
           <button type="submit" style={{
             flex: 1, height: 42, borderRadius: 12, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: 'none',

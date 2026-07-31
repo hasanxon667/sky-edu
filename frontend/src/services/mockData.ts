@@ -26,8 +26,8 @@ export const INITIAL_USERS: User[] = [
 ];
 
 export const INITIAL_LOCATION: LocationSetting = {
-  latitude: 41.311081,
-  longitude: 69.240562,
+  latitude: 41.2615,
+  longitude: 69.2177,
   radiusMeters: 100,
   addressName: 'Skyline Education Markazi, Toshkent sh.'
 };
@@ -59,8 +59,8 @@ export const INITIAL_ATTENDANCE: AttendanceRecord[] = [
     checkOutTime: undefined,
     status: 'ON_TIME',
     minutesLate: 0,
-    checkInLat: 41.311085,
-    checkInLng: 69.240560,
+    checkInLat: 41.2615,
+    checkInLng: 69.2177,
     distanceMeters: 12
   }
 ];
