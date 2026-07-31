@@ -24,7 +24,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [usersList, setUsersList] = useState<User[]>(() => {
     const saved = localStorage.getItem('sky_edu_users');
     let users: User[] = saved ? JSON.parse(saved) : INITIAL_USERS;
-    users = users.filter((u) => !u.phone.includes('937188885') && !normalizePhone(u.phone).includes('937188885'));
     const mapped = users.map(u => u.role === 'ADMIN' ? { ...u, phone: '+998903503304', password: 'skyline-edu' } : u);
     localStorage.setItem('sky_edu_users', JSON.stringify(mapped));
     return mapped;
